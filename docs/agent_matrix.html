@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agent Responsibility Matrix — ResumeAI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: 'Segoe UI', Arial, sans-serif; color: #e2e8f0; padding: 32px; }
+  h1 { font-size: 22px; color: #f1f5f9; margin-bottom: 6px; }
+  .subtitle { color: #64748b; font-size: 13px; margin-bottom: 32px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+  .card { background: #1e293b; border-radius: 12px; padding: 22px; border: 1px solid #334155; }
+  .card.orchestrator { border-color: #0891b2; }
+  .card.parser       { border-color: #22c55e; }
+  .card.screener     { border-color: #f97316; }
+  .card.recommender  { border-color: #a855f7; }
+
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .emoji { font-size: 22px; }
+  .card-title { font-size: 15px; font-weight: 700; }
+  .card-file  { font-size: 10px; color: #64748b; margin-top: 2px; font-family: monospace; }
+
+  .orchestrator .card-title { color: #7dd3fc; }
+  .parser       .card-title { color: #86efac; }
+  .screener     .card-title { color: #fdba74; }
+  .recommender  .card-title { color: #d8b4fe; }
+
+  .section-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: #475569; text-transform: uppercase; margin: 12px 0 6px; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+
+  .tag-task   { background: #1e3a5f; color: #93c5fd; }
+  .tag-tool   { background: #1a2e1a; color: #86efac; font-family: monospace; }
+  .tag-in     { background: #292524; color: #d6d3d1; }
+  .tag-out    { background: #2a1f40; color: #c4b5fd; }
+  .tag-cannot { background: #2a1515; color: #fca5a5; }
+
+  .divider { height: 1px; background: #334155; margin: 14px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  th { background: #1e293b; color: #64748b; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
+  td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid #1e293b; vertical-align: top; }
+  tr:hover td { background: #1e293b44; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot-o { background: #0891b2; } .dot-p { background: #22c55e; }
+  .dot-s { background: #f97316; } .dot-r { background: #a855f7; }
+</style>
+</head>
+<body>
+
+<h1>🤖 Agent Responsibility Matrix</h1>
+<p class="subtitle">ResumeAI · FastAPI + LangChain + Ollama/Mistral · Phase 1</p>
+
+<div class="grid">
+
+  <!-- ORCHESTRATOR -->
+  <div class="card orchestrator">
+    <div class="card-header">
+      <span class="emoji">🧠</span>
+      <div>
+        <div class="card-title">Orchestrator Agent</div>
+        <div class="card-file">agents/orchestrator.py</div>
+      </div>
+    </div>
+
+    <div class="section-label">Responsibilities</div>
+    <div class="tag-list">
+      <span class="tag tag-task">Intent detection</span>
+      <span class="tag tag-task">Agent routing</span>
+      <span class="tag tag-task">Task chaining</span>
+      <span class="tag tag-task">Error handling</span>
+      <span class="tag tag-task">Session management</span>
+    </div>
+
+    <div class="section-label">Tools / Methods</div>
+    <div class="tag-list">
+      <span class="tag tag-tool">screen_candidates()</span>
+      <span class="tag tag-tool">recommend_jobs()</span>
+      <span class="tag tag-tool">_make_message()</span>
+      <span class="tag tag-tool">_assert_success()</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Inputs</div>
+    <div class="tag-list">
+      <span class="tag tag-in">ScreenRequest</span>
+      <span class="tag tag-in">RecommendRequest</span>
+    </div>
+
+    <div class="section-label">Outputs</div>
+    <div class="tag-list">
+      <span class="tag tag-out">ShortlistReport</span>
+      <span class="tag tag-out">RecommendationResult</span>
+    </div>
+
+    <div class="section-label">Cannot Do</div>
+    <div class="tag-list">
+      <span class="tag tag-cannot">Parse documents directly</span>
+      <span class="tag tag-cannot">Score candidates</span>
+      <span class="tag tag-cannot">Access vector DB</span>
+    </div>
+  </div>
+
+  <!-- PARSER -->
+  <div class="card parser">
+    <div class="card-header">
+      <span class="emoji">📄</span>
+      <div>
+        <div class="card-title">Parser Agent</div>
+        <div class="card-file">agents/parser_agent.py</div>
+      </div>
+    </div>
+
+    <div class="section-label">Responsibilities</div>
+    <div class="tag-list">
+      <span class="tag tag-task">Resume parsing</span>
+      <span class="tag tag-task">JD parsing</span>
+      <span class="tag tag-task">Schema validation</span>
+      <span class="tag tag-task">Confidence scoring</span>
+      <span class="tag tag-task">Warning generation</span>
+    </div>
+
+    <div class="section-label">Tools / Methods</div>
+    <div class="tag-list">
+      <span class="tag tag-tool">parse_resume()</span>
+      <span class="tag tag-tool">parse_jd()</span>
+      <span class="tag tag-tool">_extract_with_llm()</span>
+      <span class="tag tag-tool">_validate_schema()</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Inputs</div>
+    <div class="tag-list">
+      <span class="tag tag-in">Raw text (str)</span>
+      <span class="tag tag-in">AgentMessage</span>
+    </div>
+
+    <div class="section-label">Outputs</div>
+    <div class="tag-list">
+      <span class="tag tag-out">ParsedResume</span>
+      <span class="tag tag-out">ParsedJobDescription</span>
+    </div>
+
+    <div class="section-label">Cannot Do</div>
+    <div class="tag-list">
+      <span class="tag tag-cannot">Score or rank</span>
+      <span class="tag tag-cannot">Search vector DB</span>
+      <span class="tag tag-cannot">Make decisions</span>
+    </div>
+  </div>
+
+  <!-- SCREENER -->
+  <div class="card screener">
+    <div class="card-header">
+      <span class="emoji">🔍</span>
+      <div>
+        <div class="card-title">Screener Agent</div>
+        <div class="card-file">agents/screener_agent.py</div>
+      </div>
+    </div>
+
+    <div class="section-label">Responsibilities</div>
+    <div class="tag-list">
+      <span class="tag tag-task">Skill matching</span>
+      <span class="tag tag-task">Experience scoring</span>
+      <span class="tag tag-task">Candidate ranking</span>
+      <span class="tag tag-task">Shortlist generation</span>
+      <span class="tag tag-task">Red flag detection</span>
+    </div>
+
+    <div class="section-label">Tools / Methods</div>
+    <div class="tag-list">
+      <span class="tag tag-tool">score_candidate()</span>
+      <span class="tag tag-tool">rank_candidates()</span>
+      <span class="tag tag-tool">generate_report()</span>
+      <span class="tag tag-tool">_skill_overlap()</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Inputs</div>
+    <div class="tag-list">
+      <span class="tag tag-in">ParsedJobDescription</span>
+      <span class="tag tag-in">list[ParsedResume]</span>
+    </div>
+
+    <div class="section-label">Outputs</div>
+    <div class="tag-list">
+      <span class="tag tag-out">ShortlistReport</span>
+      <span class="tag tag-out">list[ScreeningResult]</span>
+    </div>
+
+    <div class="section-label">Cannot Do</div>
+    <div class="tag-list">
+      <span class="tag tag-cannot">Parse raw documents</span>
+      <span class="tag tag-cannot">Make hiring decisions</span>
+      <span class="tag tag-cannot">Recommend jobs</span>
+    </div>
+  </div>
+
+  <!-- RECOMMENDER -->
+  <div class="card recommender">
+    <div class="card-header">
+      <span class="emoji">💡</span>
+      <div>
+        <div class="card-title">Recommender Agent</div>
+        <div class="card-file">agents/recommender_agent.py</div>
+      </div>
+    </div>
+
+    <div class="section-label">Responsibilities</div>
+    <div class="tag-list">
+      <span class="tag tag-task">Job matching</span>
+      <span class="tag tag-task">Semantic search</span>
+      <span class="tag tag-task">Gap analysis</span>
+      <span class="tag tag-task">Career insights</span>
+      <span class="tag tag-task">Priority ranking</span>
+    </div>
+
+    <div class="section-label">Tools / Methods</div>
+    <div class="tag-list">
+      <span class="tag tag-tool">search_jobs()</span>
+      <span class="tag tag-tool">rank_matches()</span>
+      <span class="tag tag-tool">analyze_gaps()</span>
+      <span class="tag tag-tool">generate_insight()</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Inputs</div>
+    <div class="tag-list">
+      <span class="tag tag-in">ParsedResume</span>
+      <span class="tag tag-in">career_goals (optional)</span>
+    </div>
+
+    <div class="section-label">Outputs</div>
+    <div class="tag-list">
+      <span class="tag tag-out">RecommendationResult</span>
+      <span class="tag tag-out">list[JobMatch]</span>
+    </div>
+
+    <div class="section-label">Cannot Do</div>
+    <div class="tag-list">
+      <span class="tag tag-cannot">Parse raw documents</span>
+      <span class="tag tag-cannot">Screen candidates</span>
+      <span class="tag tag-cannot">Create job listings</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Message Flow Table -->
+<h2 style="margin: 32px 0 16px; font-size: 16px; color: #94a3b8;">AgentMessage Routing Table</h2>
+<table>
+  <thead>
+    <tr>
+      <th>From → To</th>
+      <th>Task</th>
+      <th>Payload Keys</th>
+      <th>Result Keys</th>
+      <th>Trigger</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="dot dot-o"></span>Orchestrator → <span class="dot dot-p"></span>Parser</td>
+      <td><code>parse_resume</code></td>
+      <td><code>text, index?</code></td>
+      <td><code>parsed_resume</code></td>
+      <td>POST /screen or /recommend</td>
+    </tr>
+    <tr>
+      <td><span class="dot dot-o"></span>Orchestrator → <span class="dot dot-p"></span>Parser</td>
+      <td><code>parse_jd</code></td>
+      <td><code>text</code></td>
+      <td><code>parsed_jd</code></td>
+      <td>POST /screen or /parse/jd</td>
+    </tr>
+    <tr>
+      <td><span class="dot dot-o"></span>Orchestrator → <span class="dot dot-s"></span>Screener</td>
+      <td><code>screen_candidates</code></td>
+      <td><code>parsed_jd, parsed_resumes, top_n</code></td>
+      <td><code>report</code></td>
+      <td>After all resumes parsed</td>
+    </tr>
+    <tr>
+      <td><span class="dot dot-o"></span>Orchestrator → <span class="dot dot-r"></span>Recommender</td>
+      <td><code>recommend_jobs</code></td>
+      <td><code>parsed_resume, career_goals, top_n</code></td>
+      <td><code>recommendation</code></td>
+      <td>After resume parsed</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

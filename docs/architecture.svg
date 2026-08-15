@@ -1,0 +1,132 @@
+<svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="620" fill="#0f1117"/>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#e2e8f0" font-size="18" font-weight="700" letter-spacing="1">ResumeAI — Agentic System Architecture</text>
+  <text x="450" y="58" text-anchor="middle" fill="#64748b" font-size="11">FastAPI · LangChain · Ollama/Mistral · ChromaDB</text>
+
+  <!-- ═══ USER LAYER ══════════════════════════════════════════════ -->
+  <rect x="30" y="78" width="840" height="72" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="450" y="97" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600" letter-spacing="2">USER LAYER</text>
+
+  <!-- Recruiter -->
+  <rect x="100" y="106" width="160" height="34" rx="6" fill="#1d4ed8" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="180" y="124" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">👔 Recruiter</text>
+  <text x="180" y="135" text-anchor="middle" fill="#bfdbfe" font-size="9">POST /screen</text>
+
+  <!-- Candidate -->
+  <rect x="640" y="106" width="160" height="34" rx="6" fill="#7c3aed" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="720" y="124" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">🎯 Candidate</text>
+  <text x="720" y="135" text-anchor="middle" fill="#ddd6fe" font-size="9">POST /recommend</text>
+
+  <!-- FastAPI badge -->
+  <rect x="380" y="106" width="140" height="34" rx="6" fill="#0f766e" stroke="#14b8a6" stroke-width="1.5"/>
+  <text x="450" y="124" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="600">⚡ FastAPI</text>
+  <text x="450" y="135" text-anchor="middle" fill="#99f6e4" font-size="9">REST API  · port 8000</text>
+
+  <!-- Arrows: Users → FastAPI -->
+  <line x1="260" y1="123" x2="378" y2="123" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <line x1="522" y1="123" x2="638" y2="123" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+
+  <!-- ═══ ORCHESTRATOR ════════════════════════════════════════════ -->
+  <rect x="290" y="188" width="320" height="54" rx="10" fill="#164e63" stroke="#0891b2" stroke-width="2"/>
+  <text x="450" y="210" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700" letter-spacing="1">🧠 ORCHESTRATOR AGENT</text>
+  <text x="450" y="226" text-anchor="middle" fill="#bae6fd" font-size="9.5">ReAct pattern · intent detection · agent routing</text>
+  <text x="450" y="238" text-anchor="middle" fill="#64748b" font-size="8.5">agents/orchestrator.py</text>
+
+  <!-- Arrow: FastAPI → Orchestrator -->
+  <line x1="450" y1="150" x2="450" y2="186" stroke="#0891b2" stroke-width="2" marker-end="url(#arrc)"/>
+
+  <!-- ═══ SPECIALIZED AGENTS ════════════════════════════════════= -->
+  <rect x="30" y="284" width="840" height="90" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="450" y="303" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600" letter-spacing="2">SPECIALIZED AGENTS  (inherit from BaseAgent)</text>
+
+  <!-- Parser Agent -->
+  <rect x="55" y="312" width="200" height="50" rx="8" fill="#14532d" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="155" y="332" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">📄 Parser Agent</text>
+  <text x="155" y="345" text-anchor="middle" fill="#bbf7d0" font-size="8.5">Resume · JD → Pydantic schema</text>
+  <text x="155" y="356" text-anchor="middle" fill="#4ade80" font-size="8">agents/parser_agent.py</text>
+
+  <!-- Screener Agent -->
+  <rect x="345" y="312" width="200" height="50" rx="8" fill="#7c2d12" stroke="#f97316" stroke-width="1.5"/>
+  <text x="445" y="332" text-anchor="middle" fill="#fdba74" font-size="11" font-weight="700">🔍 Screener Agent</text>
+  <text x="445" y="345" text-anchor="middle" fill="#fed7aa" font-size="8.5">Score · rank · explain candidates</text>
+  <text x="445" y="356" text-anchor="middle" fill="#fb923c" font-size="8">agents/screener_agent.py</text>
+
+  <!-- Recommender Agent -->
+  <rect x="635" y="312" width="200" height="50" rx="8" fill="#581c87" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="735" y="332" text-anchor="middle" fill="#d8b4fe" font-size="11" font-weight="700">💡 Recommender Agent</text>
+  <text x="735" y="345" text-anchor="middle" fill="#e9d5ff" font-size="8.5">Match jobs · explain gaps</text>
+  <text x="735" y="356" text-anchor="middle" fill="#c084fc" font-size="8">agents/recommender_agent.py</text>
+
+  <!-- Arrows: Orchestrator → Agents -->
+  <line x1="380" y1="242" x2="200" y2="312" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrg)"/>
+  <line x1="450" y1="242" x2="450" y2="312" stroke="#f97316" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arro)"/>
+  <line x1="520" y1="242" x2="700" y2="312" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrp)"/>
+
+  <!-- ═══ SHARED SERVICES ════════════════════════════════════════ -->
+  <rect x="30" y="414" width="840" height="90" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="450" y="433" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600" letter-spacing="2">SHARED SERVICES  (all agents use these)</text>
+
+  <!-- Ollama/Mistral -->
+  <rect x="55" y="442" width="190" height="50" rx="8" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="150" y="462" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">🤖 Ollama / Mistral</text>
+  <text x="150" y="475" text-anchor="middle" fill="#fde68a" font-size="8.5">Local LLM · :11434</text>
+  <text x="150" y="486" text-anchor="middle" fill="#d97706" font-size="8">LangChain OllamaLLM</text>
+
+  <!-- ChromaDB -->
+  <rect x="295" y="442" width="190" height="50" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="390" y="462" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="700">🗄️ ChromaDB</text>
+  <text x="390" y="475" text-anchor="middle" fill="#c7d2fe" font-size="8.5">Local vector store</text>
+  <text x="390" y="486" text-anchor="middle" fill="#6366f1" font-size="8">./data/chroma_db</text>
+
+  <!-- Settings/Pydantic -->
+  <rect x="535" y="442" width="190" height="50" rx="8" fill="#0c1a0c" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="630" y="462" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">⚙️ Config + Schemas</text>
+  <text x="630" y="475" text-anchor="middle" fill="#bbf7d0" font-size="8.5">Pydantic v2 models</text>
+  <text x="630" y="486" text-anchor="middle" fill="#4ade80" font-size="8">config/ · schemas/</text>
+
+  <!-- Arrows: Agents → Services -->
+  <line x1="155" y1="362" x2="155" y2="440" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="445" y1="362" x2="390" y2="440" stroke="#818cf8" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="735" y1="362" x2="630" y2="440" stroke="#4ade80" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- ═══ DATA FLOW LEGEND ════════════════════════════════════════ -->
+  <rect x="30" y="524" width="840" height="75" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="450" y="544" text-anchor="middle" fill="#64748b" font-size="10" font-weight="600" letter-spacing="2">DATA FLOW</text>
+
+  <!-- Screen flow -->
+  <rect x="50" y="553" width="360" height="36" rx="6" fill="#1e293b"/>
+  <text x="60" y="568" fill="#f97316" font-size="9" font-weight="700">SCREEN PATH  (Recruiter)</text>
+  <text x="60" y="580" fill="#94a3b8" font-size="8.5">POST /screen  →  Parse JD  →  Parse N resumes  →  Score &amp; rank  →  ShortlistReport</text>
+
+  <!-- Recommend flow -->
+  <rect x="480" y="553" width="360" height="36" rx="6" fill="#1e293b"/>
+  <text x="490" y="568" fill="#a855f7" font-size="9" font-weight="700">RECOMMEND PATH  (Candidate)</text>
+  <text x="490" y="580" fill="#94a3b8" font-size="8.5">POST /recommend  →  Parse resume  →  Vector search  →  RecommendationResult</text>
+
+  <!-- Arrowhead markers -->
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+    </marker>
+    <marker id="arr2" markerWidth="8" markerHeight="6" refX="2" refY="3" orient="auto">
+      <polygon points="8 0, 0 3, 8 6" fill="#475569"/>
+    </marker>
+    <marker id="arrc" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#0891b2"/>
+    </marker>
+    <marker id="arrg" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#22c55e"/>
+    </marker>
+    <marker id="arro" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f97316"/>
+    </marker>
+    <marker id="arrp" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#a855f7"/>
+    </marker>
+  </defs>
+
+</svg>

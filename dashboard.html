@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeAI — Agentic Hiring Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12; --surface: #0e1420; --surface2: #131a28; --border: #1e2a3d;
+    --accent: #00e5ff; --accent2: #7c3aed; --accent3: #f97316;
+    --green: #00ff88; --red: #ff4455; --yellow: #ffd60a;
+    --text: #e8edf5; --muted: #4a5a72; --muted2: #2a3a52;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: radial-gradient(circle at top right, rgba(0,229,255,0.15), transparent 22%), linear-gradient(180deg, #05070d 0%, #080b12 100%); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; z-index: 0; opacity: 0.7; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(8,11,18,0.92); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0 32px; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 12px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.03em; }
+  .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo span { color: var(--accent); }
+  .status-pill { display: flex; align-items: center; gap: 8px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.15); border-radius: 999px; padding: 8px 16px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--green); }
+  .status-pill span { font-weight: 700; }
+  .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px rgba(0,255,136,0.4); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 72px); position: relative; z-index: 1; }
+  aside { border-right: 1px solid rgba(255,255,255,0.06); padding: 28px 18px; display: flex; flex-direction: column; gap: 12px; background: rgba(6,8,15,0.75); backdrop-filter: blur(14px); }
+  .nav-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; padding: 10px 12px 4px; font-family: 'DM Mono', monospace; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all 0.25s ease; border: 1px solid transparent; }
+  .nav-item:hover { background: rgba(0,229,255,0.08); color: var(--text); }
+  .nav-item.active { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.24); color: var(--accent); box-shadow: 0 16px 40px rgba(0,229,255,0.08); }
+  .nav-icon { font-size: 16px; width: 24px; text-align: center; }
+  main { padding: 34px 34px 48px; overflow-y: auto; }
+  .page-title { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -0.05em; line-height: 1.05; }
+  .page-subtitle { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: 'DM Mono', monospace; }
+  .page-header { margin-bottom: 32px; animation: fadeUp 0.4s ease; }
+  .tabs { display: flex; gap: 8px; background: rgba(14,20,32,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 6px; margin-bottom: 28px; }
+  .tab { flex: 1; padding: 12px 18px; border-radius: 14px; cursor: pointer; font-size: 13px; font-weight: 600; text-align: center; color: var(--muted); transition: all 0.25s ease; }
+  .tab.active { background: rgba(0,229,255,0.12); color: var(--text); border: 1px solid rgba(0,229,255,0.18); }
+  .method-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
+  .method-btn { padding: 10px 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: rgba(14,20,32,0.85); color: var(--muted); font-size: 12px; cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.25s ease; }
+  .method-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.12); }
+
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .input-card { background: rgba(15,22,36,0.95); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; overflow: hidden; transition: border-color 0.25s ease, transform 0.25s ease; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02); }
+  .input-card:hover { transform: translateY(-1px); border-color: rgba(0,229,255,0.18); }
+  .input-card:focus-within { border-color: rgba(0,229,255,0.45); }
+  .input-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(12,18,30,0.95); }
+  .input-card-header-left { display: flex; align-items: center; gap: 10px; }
+  .input-card-header span { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1.4px; }
+  .input-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-cyan { background: var(--accent); } .dot-purple { background: var(--accent2); }
+  textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; padding: 16px; resize: none; height: 180px; line-height: 1.6; }
+  textarea::placeholder { color: var(--muted); }
+  .input-mode-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .input-mode-tab { flex: 1; padding: 8px; text-align: center; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+  .input-mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,229,255,0.04); }
+  .drop-zone { border: 1px dashed rgba(255,255,255,0.12); border-radius: 18px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.25s ease; margin: 18px; background: rgba(255,255,255,0.01); }
+  .drop-zone:hover, .drop-zone.dragover { border-color: rgba(0,229,255,0.45); background: rgba(0,229,255,0.05); }
+  .drop-zone-icon { font-size: 28px; margin-bottom: 10px; }
+  .drop-zone-text { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .drop-zone-sub { font-size: 11px; color: var(--muted2); margin-top: 4px; }
+  .file-input { display: none; }
+  .uploaded-files { padding: 6px 12px 8px; }
+  .file-chip { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 5px; }
+  .file-chip-name { flex: 1; font-size: 11px; font-family: 'DM Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-chip-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .status-parsing { background: rgba(0,229,255,0.1); color: var(--accent); }
+  .status-ready { background: rgba(0,255,136,0.1); color: var(--green); }
+  .status-error { background: rgba(255,68,85,0.1); color: var(--red); }
+  .file-chip-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; transition: color 0.2s; }
+  .file-chip-remove:hover { color: var(--red); }
+  .resume-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .resume-item:last-child { border-bottom: none; }
+  .resume-avatar { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, var(--accent2), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; font-family: 'Syne', sans-serif; flex-shrink: 0; }
+  .resume-name { font-size: 12px; font-weight: 500; flex: 1; }
+  .resume-meta { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; transition: color 0.2s; }
+  .remove-btn:hover { color: var(--red); }
+  textarea.resume-input { height: 90px; border-top: 1px solid var(--border); font-size: 11px; display: none; }
+  .add-btn { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.2s; }
+  .add-btn:hover { background: rgba(0,229,255,0.2); }
+  .empty-state { text-align: center; padding: 24px; color: var(--muted); }
+  .empty-icon { font-size: 24px; margin-bottom: 4px; opacity: 0.5; }
+  .empty-text { font-size: 11px; font-family: 'DM Mono', monospace; }
+  .run-btn { width: 100%; padding: 16px 22px; background: linear-gradient(135deg, var(--accent), #00c3ff); border: none; border-radius: 18px; color: #080b12; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 22px; box-shadow: 0 24px 48px rgba(0,229,255,0.16); }
+  .run-btn:hover { transform: translateY(-2px); box-shadow: 0 28px 60px rgba(0,229,255,0.22); }
+  .run-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+  .loading { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 16px; }
+  .loading.show { display: flex; }
+  .spinner { width: 40px; height: 40px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+  .loading-step { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .results-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+  .results-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .nlp-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); margin-top: 4px; }
+  .candidate-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 14px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.2s; animation: fadeUp 0.4s ease both; }
+  .candidate-card:hover { border-color: rgba(0,229,255,0.3); transform: translateY(-2px); }
+  .candidate-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+  .card-rank-1::before { background: var(--green); } .card-rank-2::before { background: var(--accent); } .card-rank-3::before { background: var(--accent2); } .card-rank-other::before { background: var(--muted2); }
+  .card-top { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+  .card-avatar { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; flex-shrink: 0; }
+  .avatar-1 { background: linear-gradient(135deg, #00ff88, #00b4d8); color: #080b12; } .avatar-2 { background: linear-gradient(135deg, #00e5ff, #7c3aed); color: white; } .avatar-3 { background: linear-gradient(135deg, #7c3aed, #f97316); color: white; } .avatar-other { background: var(--surface2); color: var(--muted); }
+  .card-info { flex: 1; }
+  .card-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .badge-cyan { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .badge-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+  .rec-strong { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid rgba(0,255,136,0.3); font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .rec-consider { background: rgba(255,214,10,0.1); color: var(--yellow); border: 1px solid rgba(255,214,10,0.2); font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .rec-pass { background: rgba(255,68,85,0.1); color: var(--red); border: 1px solid rgba(255,68,85,0.2); font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .card-score-area { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .total-score { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; }
+  .score-label { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .nlp-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; padding: 14px; background: var(--surface2); border-radius: 8px; }
+  .nlp-score-item { text-align: center; }
+  .nlp-score-value { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+  .nlp-score-label { font-size: 9px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .score-bars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 5px; }
+  .score-bar-track { height: 4px; background: var(--muted2); border-radius: 2px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 2px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .fill-nlp { background: linear-gradient(90deg, var(--accent2), #a78bfa); } .fill-cos { background: linear-gradient(90deg, var(--accent), #0099cc); } .fill-skill { background: linear-gradient(90deg, var(--green), #00b4d8); }
+  .fill-skills { background: linear-gradient(90deg, var(--accent), #0099cc); } .fill-exp { background: linear-gradient(90deg, var(--accent2), #9f7aea); } .fill-edu { background: linear-gradient(90deg, var(--accent3), #fb923c); } .fill-sig { background: linear-gradient(90deg, var(--green), #00b4d8); }
+  .skill-section { margin-top: 12px; }
+  .skill-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .skill-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .chip-matched { background: rgba(0,255,136,0.08); color: var(--green); border: 1px solid rgba(0,255,136,0.15); }
+  .chip-missing { background: rgba(255,68,85,0.08); color: var(--red); border: 1px solid rgba(255,68,85,0.15); }
+  .chip-bonus { background: rgba(0,229,255,0.08); color: var(--accent); border: 1px solid rgba(0,229,255,0.15); }
+  .card-explanation { margin-top: 12px; padding: 12px; background: var(--surface2); border-radius: 8px; font-size: 12px; color: var(--muted); line-height: 1.6; border-left: 2px solid var(--accent2); }
+  .rank-label { position: absolute; top: 16px; right: 16px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .job-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 14px; transition: all 0.2s; animation: fadeUp 0.4s ease both; }
+  .job-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-2px); }
+  .job-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .job-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .job-company { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .match-score-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; flex-shrink: 0; }
+  .circle-high { border-color: var(--green); background: rgba(0,255,136,0.05); } .circle-medium { border-color: var(--yellow); background: rgba(255,214,10,0.05); } .circle-low { border-color: var(--red); background: rgba(255,68,85,0.05); }
+  .circle-score { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; line-height: 1; }
+  .circle-label { font-size: 8px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; }
+  .priority-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; margin-top: 6px; }
+  .priority-high { background: rgba(0,255,136,0.1); color: var(--green); } .priority-medium { background: rgba(255,214,10,0.1); color: var(--yellow); } .priority-low { background: rgba(255,68,85,0.1); color: var(--red); }
+  .insight-card { background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(0,229,255,0.05)); border: 1px solid rgba(124,58,237,0.3); border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; gap: 14px; }
+  .insight-label { font-size: 10px; font-family: 'DM Mono', monospace; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .insight-text { font-size: 13px; line-height: 1.7; }
+  .error-msg { background: rgba(255,68,85,0.08); border: 1px solid rgba(255,68,85,0.2); border-radius: 8px; padding: 12px 16px; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--red); margin-bottom: 16px; display: none; }
+  .error-msg.show { display: block; }
+  .section { display: none; } .section.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="logo-icon">🤖</div>Resume<span>AI</span></div>
+  <div class="status-pill"><div class="status-dot"></div>MISTRAL + NLP + KNN</div>
+</header>
+<div class="layout">
+  <aside>
+    <div class="nav-label">Workspace</div>
+    <div class="nav-item active" onclick="switchNav(this,'screen')"><span class="nav-icon">🔍</span> Screen Candidates</div>
+    <div class="nav-item" onclick="switchNav(this,'recommend')"><span class="nav-icon">💡</span> Job Recommend</div>
+    <div class="nav-label" style="margin-top:12px">System</div>
+    <div class="nav-item" onclick="checkHealth()"><span class="nav-icon">❤️</span> Health Check</div>
+  </aside>
+  <main>
+
+    <!-- SCREEN -->
+    <div id="screen" class="section active">
+      <div class="page-header">
+        <div class="page-title">Screen Candidates</div>
+        
+      </div>
+      <div class="tabs">
+        <div class="tab active" id="tab-input" onclick="switchTab('input')">Input</div>
+        <div class="tab" id="tab-results-screen" onclick="switchTab('results-screen')">Results</div>
+      </div>
+      <div id="panel-input">
+        <div class="method-toggle">
+          <button class="method-btn active" id="btn-nlp" onclick="setMethod('nlp')">⚡ NLP + KNN (Fast)</button>
+          <button class="method-btn" id="btn-llm" onclick="setMethod('llm')">🧠 LLM Agent (Deep)</button>
+        </div>
+        
+        <div class="input-grid">
+          <div class="input-card">
+            <div class="input-card-header"><div class="input-card-header-left"><div class="input-dot dot-cyan"></div><span>Job Description</span></div></div>
+            <textarea id="jd-input" placeholder="Paste the job description here..."></textarea>
+          </div>
+          <div class="input-card">
+            <div class="input-card-header">
+              <div class="input-card-header-left"><div class="input-dot dot-purple"></div><span>Candidates</span></div>
+              <button class="add-btn" id="add-resume-btn" onclick="showAddResume()" style="display:none">+ Add Text</button>
+            </div>
+            <div class="input-mode-tabs">
+              <div class="input-mode-tab active" id="mode-tab-pdf" onclick="switchInputMode('pdf')">📄 Upload PDF</div>
+              <div class="input-mode-tab" id="mode-tab-text" onclick="switchInputMode('text')">✏️ Paste Text</div>
+            </div>
+            <div id="mode-pdf">
+              <div class="drop-zone" id="resume-drop" onclick="document.getElementById('resume-files').click()" ondragover="dragOver(event,'resume-drop')" ondragleave="dragLeave('resume-drop')" ondrop="dropFiles(event)">
+                <div class="drop-zone-icon">📋</div>
+                <div class="drop-zone-text">Drop PDF/DOCX resumes here</div>
+                <div class="drop-zone-sub">Click to browse • Multiple files OK</div>
+              </div>
+              <input type="file" id="resume-files" class="file-input" accept=".pdf,.docx,.txt" multiple onchange="handleFilesSelect(event)">
+              <div id="pdf-file-list" class="uploaded-files"></div>
+            </div>
+            <div id="mode-text" style="display:none">
+              <div id="resume-list-items"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">No resumes added yet</div></div></div>
+              <textarea class="resume-input" id="resume-input-field" placeholder="Paste resume here then click Save..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="error-msg" id="screen-error"></div>
+        <button class="run-btn" onclick="runScreening()" id="screen-btn"><span>⚡</span> Run NLP Screening</button>
+      </div>
+      <div id="panel-results-screen" style="display:none">
+        <div class="loading" id="screen-loading">
+          <div class="spinner"></div>
+          <div class="loading-text">Processing...</div>
+          <div class="loading-step" id="screen-step">Initializing</div>
+        </div>
+        <div id="screen-results"></div>
+      </div>
+    </div>
+
+    <!-- RECOMMEND -->
+    <div id="recommend" class="section">
+      <div class="page-header">
+        <div class="page-title">Job Recommendations</div>
+        <div class="page-subtitle">// upload or paste your resume → get matched jobs</div>
+      </div>
+      <div class="input-card" style="margin-bottom:16px">
+        <div class="input-card-header">
+          <div class="input-card-header-left"><div class="input-dot dot-purple"></div><span>Your Resume</span></div>
+        </div>
+        <div class="input-mode-tabs">
+          <div class="input-mode-tab active" id="rec-mode-tab-pdf" onclick="switchRecMode('pdf')">📄 Upload PDF</div>
+          <div class="input-mode-tab" id="rec-mode-tab-text" onclick="switchRecMode('text')">✏️ Paste Text</div>
+        </div>
+        <div id="rec-mode-pdf">
+          <div class="drop-zone" id="rec-drop" style="margin:12px" onclick="document.getElementById('rec-file').click()" ondragover="dragOver(event,'rec-drop')" ondragleave="dragLeave('rec-drop')" ondrop="dropRecFile(event)">
+            <div class="drop-zone-icon">👤</div>
+            <div class="drop-zone-text">Drop your resume here</div>
+            <div class="drop-zone-sub">PDF, DOCX, or TXT</div>
+          </div>
+          <input type="file" id="rec-file" class="file-input" accept=".pdf,.docx,.txt" onchange="handleRecFile(event)">
+          <div id="rec-file-info" style="padding:0 12px 12px"></div>
+        </div>
+        <div id="rec-mode-text" style="display:none">
+          <textarea id="rec-resume" placeholder="Paste your resume here..." style="height:160px"></textarea>
+        </div>
+      </div>
+      <div class="input-card" style="margin-bottom:16px">
+        <div class="input-card-header"><div class="input-card-header-left"><div class="input-dot dot-cyan"></div><span>Career Goals (optional)</span></div></div>
+        <textarea id="rec-goals" placeholder="e.g. I want to transition into data engineering..." style="height:80px"></textarea>
+      </div>
+      <div class="error-msg" id="rec-error"></div>
+      <button class="run-btn" onclick="runRecommend()" id="rec-btn" style="background:linear-gradient(135deg,#7c3aed,#a855f7);margin-top:0"><span>💡</span> Find Matching Jobs</button>
+      <div class="loading" id="rec-loading" style="margin-top:32px">
+        <div class="spinner" style="border-top-color:#a855f7"></div>
+        <div class="loading-text">Finding your best matches...</div>
+        <div class="loading-step" id="rec-step">Analyzing your profile</div>
+      </div>
+      <div id="rec-results" style="margin-top:24px"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let textResumes = [], pdfResumes = [];
+let addingResume = false, screenMethod = 'nlp', recResumeText = '';
+
+function switchNav(el, s) { document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); el.classList.add('active'); document.querySelectorAll('.section').forEach(x=>x.classList.remove('active')); document.getElementById(s).classList.add('active'); }
+function switchTab(tab) { document.getElementById('tab-input').classList.toggle('active',tab==='input'); document.getElementById('tab-results-screen').classList.toggle('active',tab==='results-screen'); document.getElementById('panel-input').style.display=tab==='input'?'block':'none'; document.getElementById('panel-results-screen').style.display=tab==='results-screen'?'block':'none'; }
+function setMethod(m) { screenMethod=m; document.getElementById('btn-nlp').classList.toggle('active',m==='nlp'); document.getElementById('btn-llm').classList.toggle('active',m==='llm');  document.getElementById('screen-btn').innerHTML=m==='nlp'?'<span>⚡</span> Run NLP Screening':'<span>🧠</span> Run LLM Screening'; }
+function switchInputMode(mode) { document.getElementById('mode-tab-pdf').classList.toggle('active',mode==='pdf'); document.getElementById('mode-tab-text').classList.toggle('active',mode==='text'); document.getElementById('mode-pdf').style.display=mode==='pdf'?'block':'none'; document.getElementById('mode-text').style.display=mode==='text'?'block':'none'; document.getElementById('add-resume-btn').style.display=mode==='text'?'inline-block':'none'; }
+function switchRecMode(mode) { document.getElementById('rec-mode-tab-pdf').classList.toggle('active',mode==='pdf'); document.getElementById('rec-mode-tab-text').classList.toggle('active',mode==='text'); document.getElementById('rec-mode-pdf').style.display=mode==='pdf'?'block':'none'; document.getElementById('rec-mode-text').style.display=mode==='text'?'block':'none'; }
+function dragOver(e,id){e.preventDefault();document.getElementById(id).classList.add('dragover');}
+function dragLeave(id){document.getElementById(id).classList.remove('dragover');}
+function dropFiles(e){e.preventDefault();dragLeave('resume-drop');Array.from(e.dataTransfer.files).forEach(f=>uploadResumeFile(f));}
+function handleFilesSelect(e){Array.from(e.target.files).forEach(f=>uploadResumeFile(f));e.target.value='';}
+function dropRecFile(e){e.preventDefault();dragLeave('rec-drop');if(e.dataTransfer.files[0])uploadRecFile(e.dataTransfer.files[0]);}
+function handleRecFile(e){if(e.target.files[0])uploadRecFile(e.target.files[0]);}
+
+function buildTextFromParsed(p) {
+  const parts=[];
+  if(p.name)parts.push(p.name);
+  if(p.email)parts.push(p.email);
+  if(p.hard_skills?.length)parts.push('Skills: '+p.hard_skills.join(', '));
+  if(p.total_experience_years)parts.push(p.total_experience_years+' years experience');
+  for(const w of(p.work_experience||[]).slice(0,3)){if(w.company)parts.push((w.role||'Developer')+' at '+w.company);}
+  for(const e of(p.education||[]).slice(0,2)){if(e.institution)parts.push(e.degree+' '+e.institution);}
+  return parts.join('\n');
+}
+
+async function uploadResumeFile(file) {
+  const id = Date.now()+Math.random();
+  const listEl = document.getElementById('pdf-file-list');
+  const chip = document.createElement('div');
+  chip.className='file-chip'; chip.id=`chip-${id}`;
+  chip.innerHTML=`<span style="font-size:16px">📄</span><span class="file-chip-name">${file.name}</span><span class="file-chip-status status-parsing" id="status-${id}">parsing...</span><button class="file-chip-remove" onclick="removePdfResume('${id}')">×</button>`;
+  listEl.appendChild(chip);
+  const formData=new FormData(); formData.append('file',file);
+  try {
+    const res=await fetch(`${API}/upload/resume`,{method:'POST',body:formData});
+    const data=await res.json();
+    if(data.success){
+      const parsed=data.data.parsed_resume;
+      document.getElementById(`status-${id}`).className='file-chip-status status-ready';
+      document.getElementById(`status-${id}`).textContent='✓ ready';
+      pdfResumes.push({id,name:parsed.name||file.name,text:buildTextFromParsed(parsed)});
+    } else {
+      document.getElementById(`status-${id}`).className='file-chip-status status-error';
+      document.getElementById(`status-${id}`).textContent='✗ failed';
+    }
+  } catch(e) {
+    document.getElementById(`status-${id}`).className='file-chip-status status-error';
+    document.getElementById(`status-${id}`).textContent='✗ error';
+  }
+}
+
+function removePdfResume(id){pdfResumes=pdfResumes.filter(r=>r.id!=id);const c=document.getElementById(`chip-${id}`);if(c)c.remove();}
+
+function showAddResume() {
+  const field=document.getElementById('resume-input-field'),btn=document.getElementById('add-resume-btn');
+  if(!addingResume){field.style.display='block';field.focus();addingResume=true;btn.textContent='✓ Save';}
+  else{const text=field.value.trim();if(text){const name=text.split('\n')[0].trim()||`Candidate ${textResumes.length+1}`;textResumes.push({name,text});renderTextResumes();field.value='';}field.style.display='none';addingResume=false;btn.textContent='+ Add Text';}
+}
+function renderTextResumes(){const c=document.getElementById('resume-list-items');if(textResumes.length===0){c.innerHTML='<div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">No resumes added yet</div></div>';return;}c.innerHTML=textResumes.map((r,i)=>`<div class="resume-item"><div class="resume-avatar">${r.name.charAt(0).toUpperCase()}</div><div style="flex:1"><div class="resume-name">${r.name}</div><div class="resume-meta">${r.text.split('\n').length} lines</div></div><button class="remove-btn" onclick="removeTextResume(${i})">×</button></div>`).join('');}
+function removeTextResume(i){textResumes.splice(i,1);renderTextResumes();}
+
+async function uploadRecFile(file) {
+  document.getElementById('rec-file-info').innerHTML=`<div class="file-chip"><span style="font-size:16px">📄</span><span class="file-chip-name">${file.name}</span><span class="file-chip-status status-parsing">parsing...</span></div>`;
+  const formData=new FormData(); formData.append('file',file);
+  try {
+    const res=await fetch(`${API}/upload/resume`,{method:'POST',body:formData});
+    const data=await res.json();
+    if(data.success){const parsed=data.data.parsed_resume;recResumeText=buildTextFromParsed(parsed);document.getElementById('rec-file-info').innerHTML=`<div class="file-chip"><span style="font-size:16px">📄</span><span class="file-chip-name">${file.name}</span><span class="file-chip-status status-ready">✓ ${parsed.name||'parsed'}</span><button class="file-chip-remove" onclick="clearRecFile()">×</button></div>`;}
+    else{document.getElementById('rec-file-info').innerHTML=`<div class="error-msg show">Upload failed</div>`;}
+  } catch(e){document.getElementById('rec-file-info').innerHTML=`<div class="error-msg show">Cannot connect to API</div>`;}
+}
+function clearRecFile(){recResumeText='';document.getElementById('rec-file-info').innerHTML='';}
+
+async function runScreening() {
+  const jd=document.getElementById('jd-input').value.trim();
+  if(!jd){showError('screen-error','Please paste a job description');return;}
+  const allResumes=[...pdfResumes.map(r=>r.text),...textResumes.map(r=>r.text)];
+  if(allResumes.length===0){showError('screen-error','Please add at least one resume (PDF or text)');return;}
+  switchTab('results-screen');
+  document.getElementById('screen-loading').classList.add('show');
+  document.getElementById('screen-results').innerHTML='';
+  document.getElementById('screen-btn').disabled=true;
+  const endpoint=screenMethod==='nlp'?'/nlp/screen':'/screen';
+  const steps=screenMethod==='nlp'?['Fast parsing resumes...','Building TF-IDF vectors...','KNN ranking...','LLM explaining top 3...']:['Parsing with Mistral...','Scoring candidates...','Ranking shortlist...'];
+  let stepIdx=0;
+  const si=setInterval(()=>{document.getElementById('screen-step').textContent=steps[Math.min(stepIdx++,steps.length-1)];},screenMethod==='nlp'?3000:2000);
+  try {
+    const res=await fetch(`${API}${endpoint}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jd_text:jd,resume_texts:allResumes,top_n:10})});
+    const data=await res.json();
+    clearInterval(si);document.getElementById('screen-loading').classList.remove('show');document.getElementById('screen-btn').disabled=false;
+    if(data.success){screenMethod==='nlp'?renderNLPResults(data.data):renderLLMResults(data.data);}
+    else{showError('screen-error',data.detail||'Screening failed');switchTab('input');}
+  } catch(e){clearInterval(si);document.getElementById('screen-loading').classList.remove('show');document.getElementById('screen-btn').disabled=false;showError('screen-error','Cannot connect to API.');switchTab('input');}
+}
+
+function scoreColor(s){return s>=70?'var(--green)':s>=40?'var(--yellow)':'var(--red)';}
+function rankClass(i){return i===0?'card-rank-1':i===1?'card-rank-2':i===2?'card-rank-3':'card-rank-other';}
+function avatarClass(i){return i===0?'avatar-1':i===1?'avatar-2':i===2?'avatar-3':'avatar-other';}
+function recClass(r){return r==='Strong Hire'?'rec-strong':r==='Consider'?'rec-consider':'rec-pass';}
+
+function renderNLPResults(data) {
+  const c=document.getElementById('screen-results'),results=data.results||[];
+  c.innerHTML=`<div class="results-header"><div><div class="results-title">Shortlist — ${(data.jd_title||'Job').split('.')[0]}</div><div><span class="nlp-badge">⚡ ${data.method}</span></div></div><div class="results-meta">${results.length} of ${data.total_candidates} ranked</div></div>`+
+  results.map((r,i)=>`<div class="candidate-card ${rankClass(i)}" style="animation-delay:${i*0.1}s">
+    <div class="rank-label">#${r.rank}</div>
+    <div class="card-top">
+      <div class="card-avatar ${avatarClass(i)}">${(r.candidate_name||'?').charAt(0).toUpperCase()}</div>
+      <div class="card-info"><div class="card-name">${r.candidate_name||'Unknown'}</div><div class="card-badges"><span class="${recClass(r.recommendation)}">${r.recommendation}</span><span class="badge badge-cyan">${r.experience_level}</span><span class="badge badge-purple">${r.experience_years}yrs</span></div></div>
+      <div class="card-score-area"><div class="total-score" style="color:${scoreColor(r.nlp_score)}">${Math.round(r.nlp_score)}</div><div class="score-label">NLP Score</div></div>
+    </div>
+    <div class="nlp-scores">
+      <div class="nlp-score-item"><div class="nlp-score-value" style="color:${scoreColor(r.nlp_score)}">${r.nlp_score.toFixed(1)}</div><div class="nlp-score-label">NLP Score</div></div>
+      <div class="nlp-score-item"><div class="nlp-score-value" style="color:${scoreColor(r.cosine_similarity*3)}">${r.cosine_similarity.toFixed(1)}%</div><div class="nlp-score-label">Cosine Sim</div></div>
+      <div class="nlp-score-item"><div class="nlp-score-value" style="color:${scoreColor(r.skill_match_score)}">${r.skill_match_score.toFixed(1)}%</div><div class="nlp-score-label">Skill Match</div></div>
+    </div>
+    <div class="score-bars">
+      <div><div class="score-bar-label"><span>NLP Score</span><span>${r.nlp_score.toFixed(1)} / 100</span></div><div class="score-bar-track"><div class="score-bar-fill fill-nlp" style="width:${Math.min(r.nlp_score,100)}%"></div></div></div>
+      <div><div class="score-bar-label"><span>Cosine Similarity</span><span>${r.cosine_similarity.toFixed(1)}%</span></div><div class="score-bar-track"><div class="score-bar-fill fill-cos" style="width:${Math.min(r.cosine_similarity*3,100)}%"></div></div></div>
+      <div><div class="score-bar-label"><span>Skill Match</span><span>${r.skill_match_score.toFixed(1)}%</span></div><div class="score-bar-track"><div class="score-bar-fill fill-skill" style="width:${Math.min(r.skill_match_score,100)}%"></div></div></div>
+    </div>
+    ${r.matched_skills?.length||r.missing_skills?.length?`<div class="skill-section">${r.matched_skills?.length?`<div class="skill-section-label">✓ Matched</div><div class="skill-chips">${r.matched_skills.map(s=>`<span class="chip chip-matched">${s}</span>`).join('')}</div>`:''} ${r.missing_skills?.length?`<div class="skill-section-label" style="margin-top:8px">✗ Missing</div><div class="skill-chips">${r.missing_skills.map(s=>`<span class="chip chip-missing">${s}</span>`).join('')}</div>`:''} ${r.bonus_skills?.length?`<div class="skill-section-label" style="margin-top:8px">★ Bonus</div><div class="skill-chips">${r.bonus_skills.map(s=>`<span class="chip chip-bonus">${s}</span>`).join('')}</div>`:''}</div>`:''}
+    ${r.explanation?`<div class="card-explanation">${r.explanation}</div>`:''}
+  </div>`).join('');
+}
+
+function renderLLMResults(data) {
+  const c=document.getElementById('screen-results'),results=data.results||[];
+  c.innerHTML=`<div class="results-header"><div><div class="results-title">Shortlist — ${data.jd_title||'Job'}</div><div><span class="nlp-badge" style="background:rgba(0,229,255,0.1);color:var(--accent)">🧠 LLM Agent</span></div></div><div class="results-meta">${results.length} of ${data.total_candidates_evaluated} ranked</div></div>`+
+  results.map((r,i)=>`<div class="candidate-card ${rankClass(i)}" style="animation-delay:${i*0.1}s">
+    <div class="rank-label">#${i+1}</div>
+    <div class="card-top">
+      <div class="card-avatar ${avatarClass(i)}">${(r.candidate_name||'?').charAt(0)}</div>
+      <div class="card-info"><div class="card-name">${r.candidate_name||'Unknown'}</div><div class="card-badges"><span class="${recClass(r.recommendation)}">${r.recommendation}</span>${(r.strengths||[]).slice(0,1).map(s=>`<span class="badge badge-cyan">${s}</span>`).join('')}</div></div>
+      <div class="card-score-area"><div class="total-score" style="color:${scoreColor(r.score_breakdown.total_score)}">${r.score_breakdown.total_score}</div><div class="score-label">Total Score</div></div>
+    </div>
+    <div class="score-bars">
+      ${[{l:'Skills',v:r.score_breakdown.skills_score,c:'fill-skills'},{l:'Exp',v:r.score_breakdown.experience_score,c:'fill-exp'},{l:'Education',v:r.score_breakdown.education_score,c:'fill-edu'},{l:'Signals',v:r.score_breakdown.signals_score,c:'fill-sig'}].map(b=>`<div><div class="score-bar-label"><span>${b.l}</span><span>${b.v}%</span></div><div class="score-bar-track"><div class="score-bar-fill ${b.c}" style="width:${b.v}%"></div></div></div>`).join('')}
+    </div>
+    ${r.skill_match?`<div class="skill-section">${r.skill_match.matched?.length?`<div class="skill-section-label">✓ Matched</div><div class="skill-chips">${r.skill_match.matched.map(s=>`<span class="chip chip-matched">${s}</span>`).join('')}</div>`:''} ${r.skill_match.missing?.length?`<div class="skill-section-label" style="margin-top:8px">✗ Missing</div><div class="skill-chips">${r.skill_match.missing.map(s=>`<span class="chip chip-missing">${s}</span>`).join('')}</div>`:''}</div>`:''}
+    ${r.summary?`<div class="card-explanation">${r.summary}</div>`:''}
+  </div>`).join('');
+}
+
+async function runRecommend() {
+  const isPdf=document.getElementById('rec-mode-tab-pdf').classList.contains('active');
+  const resumeText=isPdf?recResumeText:document.getElementById('rec-resume').value.trim();
+  const goals=document.getElementById('rec-goals').value.trim();
+  if(!resumeText){showError('rec-error',isPdf?'Please upload a resume PDF first':'Please paste your resume');return;}
+  document.getElementById('rec-loading').classList.add('show');document.getElementById('rec-results').innerHTML='';document.getElementById('rec-btn').disabled=true;
+  const steps=['Analyzing your profile...','Searching job database...','Evaluating matches...','Generating insights...'];
+  let stepIdx=0;const si=setInterval(()=>{document.getElementById('rec-step').textContent=steps[Math.min(stepIdx++,steps.length-1)];},2500);
+  try {
+    const res=await fetch(`${API}/recommend`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resume_text:resumeText,career_goals:goals,top_n:5})});
+    const data=await res.json();clearInterval(si);document.getElementById('rec-loading').classList.remove('show');document.getElementById('rec-btn').disabled=false;
+    if(data.success)renderRecommendResults(data.data);else showError('rec-error',data.detail||'Failed');
+  } catch(e){clearInterval(si);document.getElementById('rec-loading').classList.remove('show');document.getElementById('rec-btn').disabled=false;showError('rec-error','Cannot connect to API.');}
+}
+
+function renderRecommendResults(data) {
+  const c=document.getElementById('rec-results'),matches=data.job_matches||[];
+  const cc=s=>s>=70?'circle-high':s>=40?'circle-medium':'circle-low';
+  const pc=p=>p==='High'?'priority-high':p==='Medium'?'priority-medium':'priority-low';
+  c.innerHTML=`<div class="results-header"><div class="results-title">Jobs for ${data.candidate_name||'You'}</div><div class="results-meta">${matches.length} matches found</div></div>`+
+  (data.career_insight?`<div class="insight-card"><div style="font-size:24px;flex-shrink:0">🧭</div><div><div class="insight-label">Career Insight</div><div class="insight-text">${data.career_insight}</div></div></div>`:'')+
+  (matches.length===0?`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No jobs in database yet.</div></div>`:
+  matches.map((m,i)=>`<div class="job-card" style="animation-delay:${i*0.1}s"><div class="job-card-top"><div><div class="job-title">${m.job_title||'Unknown'}</div><div class="job-company">${m.company||''}</div><div class="priority-tag ${pc(m.apply_priority)}">${m.apply_priority==='High'?'🟢':m.apply_priority==='Medium'?'🟡':'🔴'} ${m.apply_priority} Priority</div></div><div class="match-score-circle ${cc(m.match_score)}"><div class="circle-score" style="color:${scoreColor(m.match_score)}">${m.match_score}%</div><div class="circle-label">match</div></div></div>${m.match_reason?`<div class="card-explanation">${m.match_reason}</div>`:''} ${m.skill_gaps?.length?`<div class="skill-section" style="margin-top:12px"><div class="skill-section-label">Skills to develop</div><div class="skill-chips">${m.skill_gaps.map(s=>`<span class="chip chip-missing">${s}</span>`).join('')}</div></div>`:''}</div>`).join(''));
+}
+
+async function checkHealth(){try{const res=await fetch(`${API}/health`);const data=await res.json();alert(`✅ System OK\n\nOllama: ${data.ollama}\nModel: ${data.model}`);}catch(e){alert('❌ API not reachable.\n\nRun: python -m uvicorn api.main:app --reload');}}
+function showError(id,msg){const el=document.getElementById(id);el.textContent='⚠ '+msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+
+switchInputMode('pdf');
+</script>
+</body>
+</html>

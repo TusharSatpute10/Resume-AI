@@ -1,0 +1,28 @@
+# Virtual environments
+venv/
+venv311/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Local ChromaDB data
+data/chroma_db/
+
+# VS Code
+.vscode/
+
+# Other IDE files
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

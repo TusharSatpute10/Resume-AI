@@ -17,6 +17,7 @@ from schemas.models import (
     ScreenRequest, RecommendRequest, APIResponse
 )
 from agents.orchestrator import Orchestrator
+from api.auth import router as auth_router
 
 settings = get_settings()
 
@@ -46,6 +47,8 @@ app = FastAPI(
     version="0.2.0",
     lifespan=lifespan,
 )
+
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,

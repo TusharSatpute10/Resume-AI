@@ -11,6 +11,16 @@ from loguru import logger
 import httpx
 import sys
 from typing import Optional
+from api.students import router as students_router
+from api.resumes import router as resumes_router
+from api.hr import router as hr_router
+from api.companies import router as companies_router
+from api.jobs import router as jobs_router
+from api.job_skills import router as job_skills_router
+from api.applications import router as applications_router
+from api.matching import router as matching_router
+from api.skills import router as skills_router
+from api.interviews import router as interviews_router
 
 from config.settings import get_settings
 from schemas.models import (
@@ -49,6 +59,16 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+app.include_router(students_router)
+app.include_router(resumes_router)
+app.include_router(hr_router)
+app.include_router(companies_router)
+app.include_router(jobs_router)
+app.include_router(job_skills_router)
+app.include_router(applications_router)
+app.include_router(matching_router)
+app.include_router(skills_router)
+app.include_router(interviews_router)
 
 app.add_middleware(
     CORSMiddleware,

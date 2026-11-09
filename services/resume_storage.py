@@ -2,6 +2,11 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from services.skill_normalizer import (
+    canonical_skill_name,
+    normalize_skill_key,
+)
+
 from db.models.resume import Resume
 from db.models.student import Student
 from db.models.skill import Skill
@@ -80,33 +85,31 @@ def store_parsed_resume(
 
     db.flush()
 
-# ---------------------------------------------------------
-# 4. Store skills
-# ---------------------------------------------------------
+    # ---------------------------------------------------------
+    # 4. Store normalized skills
+    # ---------------------------------------------------------
     unique_skills = set()
 
-    for skill_name in parsed_data.get("skills", []):
+    for raw_skill_name in parsed_data.get("skills", []):
+
+        if not raw_skill_name:
+            continue
+
+        skill_name = canonical_skill_name(str(raw_skill_name))
 
         if not skill_name:
             continue
 
-        skill_name = str(skill_name).strip()
-
-        if not skill_name:
-            continue
-
-        # Prevent duplicate skills, ignoring letter case.
-        normalized_name = skill_name.casefold()
+        normalized_name = normalize_skill_key(skill_name)
 
         if normalized_name in unique_skills:
             continue
 
         unique_skills.add(normalized_name)
 
-    # Find an existing skill or create a new one.
         skill = (
             db.query(Skill)
-            .filter(Skill.name == skill_name)
+            .filter(Skill.name.ilike(skill_name))
             .first()
         )
 
@@ -118,7 +121,6 @@ def store_parsed_resume(
             db.add(skill)
             db.flush()
 
-    # Link the skill to this resume.
         db.add(
             ResumeSkill(
                 resume_id=resume.id,
@@ -128,7 +130,6 @@ def store_parsed_resume(
                 source="AI",
             )
         )
-
     # ---------------------------------------------------------
     # 5. Store education
     # ---------------------------------------------------------

@@ -29,3 +29,15 @@ Thumbs.db
 
 .dev-token
 uploads/
+venv/
+venv311/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.pytest_cache/
+logs/

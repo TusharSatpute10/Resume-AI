@@ -362,7 +362,157 @@ export default function HRDashboard() {
   />
 )}
 
-      {page === 'AI Matching' && <><div className="hr-section-title"><div><h2>AI candidate matching</h2><p>Only published jobs are eligible. Results include applicants for the selected job only.</p></div><span className="hr-count">AI MATCHING</span></div><section className="hr-match-box"><BrainCircuit size={30}/><div><strong>Match applicants to a job</strong><p>Select a published job to rank the students who applied to it.</p></div><select value={selectedJob} onChange={e => { setSelectedJob(e.target.value); setMatches([]); setMatchingCompleted(false); setError(''); setNotice('') }}><option value="">{publishedJobs.length ? 'Choose a published job…' : 'No published jobs available'}</option>{publishedJobs.map(j => <option key={jobId(j)} value={jobId(j)}>{jobTitle(j)}</option>)}</select><button className="hr-primary" disabled={!selectedJob || busy || !publishedJobs.some(j => String(jobId(j)) === String(selectedJob))} onClick={() => runMatching(selectedJob)}>{busy ? 'Matching…' : 'Run matching'}</button></section>{!publishedJobs.length && <p className="hr-help">Publish a job from My Jobs before running AI matching.</p>}{busy && <p className="hr-help">Running the matching engine…</p>}{matches.length > 0 && <div className="hr-table-wrap"><table className="hr-table"><thead><tr><th>Rank</th><th>Candidate / resume</th><th>Match score</th><th>Skills score</th><th>Why this candidate matches</th></tr></thead><tbody>{matches.map((m,i) => { const score = m?.final_score ?? m?.match_score ?? m?.score ?? m?.overall_score; const candidate = m?.student_name ?? m?.candidate_name ?? m?.resume_name ?? m?.resume_file_name ?? m?.file_name ?? `Candidate ${i+1}`; const explanation = m?.explanation ?? m?.reason ?? m?.summary ?? 'No explanation was returned. Re-run matching after updating the backend.'; return <tr key={m?.id ?? m?.resume_id ?? i}><td>{m?.rank ?? i+1}</td><td><strong>{candidate}</strong><small>{m?.student_email ?? m?.email ?? m?.resume_file_name ?? ''}</small></td><td><strong className="hr-score">{score == null ? '—' : `${Number(score).toFixed(1)}%`}</strong></td><td>{m?.skill_score == null ? '—' : `${Number(m.skill_score).toFixed(1)}%`}</td><td className="hr-match-explanation">{explanation}</td></tr>})}</tbody></table></div>}{!busy && !matches.length && <Empty icon={BrainCircuit} heading={matchingCompleted ? 'No applicants to match yet' : 'Ready to match applicants?'} text={matchingCompleted ? 'This published job has no eligible applications with resumes yet. Results will appear after students apply and matching is run again.' : (publishedJobs.length ? 'Choose a published job above and run matching. Draft and closed jobs are not eligible.' : 'There are currently no published jobs. Open My Jobs and publish a complete job posting first.')}/>}</>}
+      {page === 'AI Matching' && <>
+        <div className="hr-section-title">
+          <div>
+            <h2>AI candidate matching</h2>
+            <p>Only published jobs are eligible. Results include applicants for the selected job only.</p>
+          </div>
+          <span className="hr-count">AI MATCHING</span>
+        </div>
+
+        <section className="hr-match-box">
+          <BrainCircuit size={30}/>
+          <div>
+            <strong>Match applicants to a job</strong>
+            <p>Select a published job to rank the students who applied to it.</p>
+          </div>
+          <select
+            value={selectedJob}
+            onChange={e => {
+              setSelectedJob(e.target.value)
+              setMatches([])
+              setMatchingCompleted(false)
+              setError('')
+              setNotice('')
+            }}
+          >
+            <option value="">
+              {publishedJobs.length ? 'Choose a published job…' : 'No published jobs available'}
+            </option>
+            {publishedJobs.map(j => (
+              <option key={jobId(j)} value={jobId(j)}>{jobTitle(j)}</option>
+            ))}
+          </select>
+          <button
+            className="hr-primary"
+            disabled={!selectedJob || busy || !publishedJobs.some(j => String(jobId(j)) === String(selectedJob))}
+            onClick={() => runMatching(selectedJob)}
+          >
+            {busy ? 'Matching…' : 'Run matching'}
+          </button>
+        </section>
+
+        {!publishedJobs.length && (
+          <p className="hr-help">Publish a job from My Jobs before running AI matching.</p>
+        )}
+        {busy && <p className="hr-help">Running the matching engine…</p>}
+
+        {matches.length > 0 && (
+          <>
+            <div className="hr-match-summary">
+              <span><strong>{matches.length}</strong> candidates ranked</span>
+              <span>Sorted by final match score</span>
+            </div>
+            <div className="hr-table-wrap">
+              <table className="hr-table hr-matching-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Candidate</th>
+                    <th>Final score</th>
+                    <th>Skills</th>
+                    <th>Text similarity</th>
+                    <th>Experience</th>
+                    <th>Education</th>
+                    <th>Projects</th>
+                    <th>Match explanation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matches.map((m, i) => {
+                    const explanation = m?.explanation ?? m?.reason ?? m?.summary ?? ''
+                    const experienceNotEvaluated =
+                      /job\s*does not specify.*experience requirement/i.test(explanation) ||
+                      /experience information was not extracted/i.test(explanation)
+
+                    const formatScore = value =>
+                      value == null || Number.isNaN(Number(value))
+                        ? 'N/A'
+                        : `${Number(value).toFixed(1)}%`
+
+                    const candidate =
+                      m?.student_name ??
+                      m?.candidate_name ??
+                      m?.resume_name ??
+                      m?.resume_file_name ??
+                      m?.file_name ??
+                      `Candidate ${i + 1}`
+
+                    const matchedSkills = Array.isArray(m?.matched_skills) ? m.matched_skills : []
+                    const missingSkills = Array.isArray(m?.missing_skills) ? m.missing_skills : []
+
+                    return (
+                      <tr key={m?.id ?? m?.resume_id ?? i}>
+                        <td><span className="hr-rank-badge">#{m?.rank ?? i + 1}</span></td>
+                        <td>
+                          <strong>{candidate}</strong>
+                          <small>{m?.student_email ?? m?.email ?? m?.resume_file_name ?? ''}</small>
+                        </td>
+                        <td>
+                          <strong className="hr-score">{formatScore(m?.final_score ?? m?.match_score ?? m?.score ?? m?.overall_score)}</strong>
+                        </td>
+                        <td>{formatScore(m?.skill_score)}</td>
+                        <td>{formatScore(m?.semantic_score)}</td>
+                        <td>{experienceNotEvaluated ? 'N/A' : formatScore(m?.experience_score)}</td>
+                        <td>{formatScore(m?.education_score)}</td>
+                        <td>{formatScore(m?.project_score ?? m?.projects_score)}</td>
+                        <td className="hr-match-explanation">
+                          {explanation || 'No explanation was returned.'}
+                          {matchedSkills.length > 0 && (
+                            <div className="hr-skill-details">
+                              <strong>Matched skills</strong>
+                              <div className="hr-skill-chips">
+                                {matchedSkills.map((skill, index) => (
+                                  <span className="hr-skill-chip matched" key={`${skill}-${index}`}>{skill}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {missingSkills.length > 0 && (
+                            <div className="hr-skill-details">
+                              <strong>Missing skills</strong>
+                              <div className="hr-skill-chips">
+                                {missingSkills.map((skill, index) => (
+                                  <span className="hr-skill-chip missing" key={`${skill}-${index}`}>{skill}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="hr-help">N/A means the score was not provided by the API. Component scores are not necessarily additive; the final score is the ranking score returned by the backend.</p>
+          </>
+        )}
+
+        {!busy && !matches.length && (
+          <Empty
+            icon={BrainCircuit}
+            heading={matchingCompleted ? 'No applicants to match yet' : 'Ready to match applicants?'}
+            text={matchingCompleted
+              ? 'This published job has no eligible applications with resumes yet. Results will appear after students apply and matching is run again.'
+              : (publishedJobs.length
+                ? 'Choose a published job above and run matching. Draft and closed jobs are not eligible.'
+                : 'There are currently no published jobs. Open My Jobs and publish a complete job posting first.')}
+          />
+        )}
+      </>}
+
       {page === 'Company Profile' && <><div className="hr-section-title"><div><h2>Company profile</h2><p>Company details associated with your recruiter account.</p></div></div><section className="hr-company-card"><Building2 size={30}/><div><h2>{companyName}</h2><p>{profile?.email ?? user?.email ?? '—'}</p></div><div className="hr-profile-fields">{Object.entries(company || profile || {}).filter(([k,v]) => !['id','user_id','created_at','updated_at','password'].includes(k) && ['string','number'].includes(typeof v)).slice(0,12).map(([k,v]) => <div key={k}><small>{k.replaceAll('_',' ')}</small><strong>{String(v) || '—'}</strong></div>)}</div></section><p className="hr-help">Profile editing can be connected after checking the fields accepted by your company API.</p></>}
     </>}
     {jobModalOpen && <div className="hr-modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget && !savingJob) setJobModalOpen(false) }}><section className="hr-modal" role="dialog" aria-modal="true" aria-labelledby="hr-job-modal-title"><div className="hr-modal-heading"><div><small>JOB MANAGEMENT</small><h2 id="hr-job-modal-title">{editingJob ? 'Edit job posting' : 'Create a job posting'}</h2><p>{editingJob ? 'Update the job details below.' : 'New jobs are saved as drafts until you publish them.'}</p></div><button className="hr-modal-close" disabled={savingJob} onClick={() => setJobModalOpen(false)} aria-label="Close"><X size={19}/></button></div><form onSubmit={saveJob} className="hr-job-form"><label className="wide">Job title *<input required minLength={3} maxLength={255} value={jobForm.title} onChange={e => setJobForm({...jobForm,title:e.target.value})} placeholder="e.g. Junior Python Developer"/></label><label className="wide">Job description *<textarea required minLength={20} rows={5} value={jobForm.description} onChange={e => setJobForm({...jobForm,description:e.target.value})} placeholder="Describe responsibilities, expectations, and the role…"/></label><label>Location<input maxLength={150} value={jobForm.location} onChange={e => setJobForm({...jobForm,location:e.target.value})} placeholder="e.g. Pune, Maharashtra"/></label><label>Remote policy<select value={jobForm.remote_policy} onChange={e => setJobForm({...jobForm,remote_policy:e.target.value})}><option value="ONSITE">On-site</option><option value="HYBRID">Hybrid</option><option value="REMOTE">Remote</option><option value="FLEXIBLE">Flexible</option></select></label><label>Employment type<select value={jobForm.employment_type} onChange={e => setJobForm({...jobForm,employment_type:e.target.value})}><option value="FULL_TIME">Full-time</option><option value="PART_TIME">Part-time</option><option value="CONTRACT">Contract</option><option value="INTERNSHIP">Internship</option><option value="TEMPORARY">Temporary</option></select></label><label>Experience level<select value={jobForm.experience_level} onChange={e => setJobForm({...jobForm,experience_level:e.target.value})}><option value="ENTRY">Entry level</option><option value="JUNIOR">Junior</option><option value="MID">Mid level</option><option value="SENIOR">Senior</option><option value="LEAD">Lead</option><option value="ANY">Any</option></select></label><label>Minimum salary (annual)<input type="number" min="0" step="1000" value={jobForm.salary_min} onChange={e => setJobForm({...jobForm,salary_min:e.target.value})} placeholder="e.g. 300000"/></label><label>Maximum salary (annual)<input type="number" min="0" step="1000" value={jobForm.salary_max} onChange={e => setJobForm({...jobForm,salary_max:e.target.value})} placeholder="e.g. 600000"/></label><label>Required experience (years)<input type="number" min="0" max="60" step="0.5" value={jobForm.required_experience_years} onChange={e => setJobForm({...jobForm,required_experience_years:e.target.value})}/></label><label>Required education<input maxLength={150} value={jobForm.required_education} onChange={e => setJobForm({...jobForm,required_education:e.target.value})} placeholder="e.g. Bachelor's degree"/></label><label>Number of openings<input required type="number" min="1" step="1" value={jobForm.openings} onChange={e => setJobForm({...jobForm,openings:e.target.value})}/></label><div className="hr-modal-actions"><button type="button" className="hr-secondary" disabled={savingJob} onClick={() => setJobModalOpen(false)}>Cancel</button><button type="submit" className="hr-primary" disabled={savingJob}>{savingJob ? 'Saving…' : editingJob ? 'Save changes' : 'Create draft job'}</button></div></form></section></div>}
@@ -379,4 +529,22 @@ const CSS = `
 
 const EXTRA_CSS = `
 .hr-title-actions{display:flex;align-items:center;gap:10px}.hr-modal-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,5,12,.78);backdrop-filter:blur(7px);overflow-y:auto}.hr-modal{width:min(760px,100%);max-height:calc(100vh - 40px);overflow-y:auto;border:1px solid #343052;border-radius:17px;background:#0c1120;box-shadow:0 24px 90px #0009;padding:24px}.hr-modal-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:22px}.hr-modal-heading small{font-size:9px;letter-spacing:1.5px;color:#b6a7ff;font-weight:800}.hr-modal-heading h2{font-size:21px;margin:7px 0}.hr-modal-heading p{font-size:11px;color:#8490a8;margin:0}.hr-modal-close{flex-shrink:0;width:34px;height:34px;display:grid;place-items:center;border:1px solid #303950;border-radius:9px;background:#131a29;color:#aab5cb;cursor:pointer}.hr-job-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.hr-job-form label{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#aeb9d0}.hr-job-form label.wide{grid-column:1/-1}.hr-job-form input,.hr-job-form textarea,.hr-job-form select{width:100%;min-width:0;border:1px solid #303950;border-radius:8px;background:#090e19;color:#e9edf8;padding:11px 12px;font:inherit;font-size:12px;outline:none}.hr-job-form textarea{resize:vertical;line-height:1.6}.hr-job-form input:focus,.hr-job-form textarea:focus,.hr-job-form select:focus{border-color:#8b78ed;box-shadow:0 0 0 2px #8b78ed22}.hr-modal-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;padding-top:8px;border-top:1px solid #20283a;margin-top:3px}.hr-secondary{border:1px solid #303950;border-radius:9px;padding:10px 15px;background:#131a29;color:#c5cde0;font-size:11px;cursor:pointer}.hr-current-skills{margin-top:24px}.hr-current-skills h3{font-size:13px;margin:0 0 12px}.hr-current-skills h3 span{margin-left:7px;color:#b6a7ff}.hr-icon-danger{display:grid;place-items:center;border:1px solid #673044;border-radius:7px;background:#351b25;color:#fda4af;padding:7px;cursor:pointer}.hr-skills-modal{width:min(800px,100%)}.hr-skill-form{padding:16px;border:1px solid #20283a;border-radius:12px;background:#0e1320}.hr-skill-form .hr-modal-actions{border-top:0;margin-top:0}.hr-modal button:disabled{opacity:.55;cursor:not-allowed}@media(max-width:700px){.hr-modal-backdrop{padding:8px;align-items:flex-start}.hr-modal{max-height:calc(100vh - 16px);padding:17px}.hr-job-form{grid-template-columns:1fr}.hr-job-form label.wide,.hr-modal-actions{grid-column:1}.hr-title-actions{align-items:flex-end;flex-direction:column}.hr-title-actions .hr-primary{white-space:nowrap}}
+
+.hr-match-summary{display:flex;justify-content:space-between;gap:12px;margin:18px 0 10px;color:#8490a8;font-size:11px}
+.hr-match-summary strong{color:#c4b5fd;font-size:14px;margin-right:4px}
+.hr-matching-table{min-width:1250px}
+.hr-matching-table th{white-space:nowrap}
+.hr-matching-table td{vertical-align:top}
+.hr-matching-table td:nth-child(2){min-width:175px}
+.hr-matching-table td:nth-child(3){font-size:13px}
+.hr-match-explanation{min-width:330px;max-width:470px;white-space:normal!important;line-height:1.7}
+.hr-rank-badge{display:inline-grid;place-items:center;min-width:30px;height:30px;border-radius:9px;background:#211d39;color:#c4b5fd;font-weight:800}
+.hr-skill-details{margin-top:10px;padding:9px;border:1px solid #293249;border-radius:8px;background:#111827}
+.hr-skill-details>strong{display:block;color:#a99afa;font-size:10px;margin-bottom:7px}
+.hr-skill-chips{display:flex;flex-wrap:wrap;gap:5px}
+.hr-skill-chip{display:inline-block;padding:4px 7px;border-radius:20px;font-size:9px;font-weight:700}
+.hr-skill-chip.matched{background:#15352e;color:#86efac}
+.hr-skill-chip.missing{background:#38222a;color:#fda4af}
+@media(max-width:700px){.hr-match-summary{flex-direction:column;gap:5px}}
+
 `

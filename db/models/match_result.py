@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import (
+    DateTime, Float, ForeignKey, Integer, JSON,
+    String, Text, UniqueConstraint
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -8,6 +11,14 @@ from db.base import Base
 
 class MatchResult(Base):
     __tablename__ = "match_results"
+
+    __table_args__ = (
+    UniqueConstraint(
+        "job_id",
+        "resume_id",
+        name="uq_match_results_job_resume",
+    ),
+    )
 
     id: Mapped[int] = mapped_column(
         Integer,
